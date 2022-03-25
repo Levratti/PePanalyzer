@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>PeP-analyzer</title>
+
+  <link rel="shortcut icon" type="image/png" href="https://gestionece.github.io/resources/img/favicon.png">
+
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+
+  <!--link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"-->
+
+  <style>
+    *:focus {
+      outline: none;
+    }
+
+    /*body {
+      background: url(../img/1.jpg) no-repeat center fixed;
+      height: 100vh;
+      background-size: cover;
+    }*/
+
+    .bg {
+      background: url(https://picsum.photos/1920/1080?random&blur=1) no-repeat center fixed;
+      background-size: cover;
+
+      height: 100vh;
+    }
+
+    .blur {
+      background-color: rgb(0 0 0 / 50%);
+      border-radius: 15px;
+      padding: 10px;
+      margin-top: 50px;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="bg">
+
+  <div id="loadFile" class="w3-container" style="display: block;">
+    <div class="w3-row w3-margin-top w3-margin-bottom">
+      <div class="w3-col m2">
+        <p></p>
+      </div>
+      <div class="w3-col m8 blur w3-card">
+        <h1>Ehi,</h1>
+        <h2 id="pharStartPage">ecco un sito che ti aiuta a capire il file Premi/Penali</h2>
+        <p id="txtStartPage"><i>Ti basta selezionare il file o premere "Load".<br>
+            Dopo aver caricato il file premi sul tasto Smartest per avere il riapilogo e la percentuale del smartest di
+            tutti operatori per ogni LCL.<br>
+            Opure premi su Next per avere il riapilogo dei premi per ogni LCL</i></p>
+        <div class="w3-col m12 w3-border w3-round-small w3-margin-top w3-margin-bottom">
+          <input
+            style="margin: 5px 0px 0px 5px; width: calc(100% - 90px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+            type="file" id="input" accept=".xls, .xlsx, .csv" multiple>
+          <button class="w3-button w3-right w3-green" id="button">Carica</button>
+        </div>
+      </div>
+      <div class="w3-col m2">
+        <p></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="selectLCL" class="w3-container" style="display: none;">
+    <div class="w3-row w3-margin-top w3-margin-bottom">
+      <div class="w3-col l2 m1">
+        <p></p>
+      </div>
+      <div class="w3-col l8 m10 w3-round-xlarge" style="background-color: white;"> <!--https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_calendar-->
+        <div class="w3-row">
+          <div class="w3-col l5 m5 w3-container w3-margin-bottom">
+            <p><i>Filtri:</i></p>
+            <div class="w3-card-4 w3-container w3-round-xlarge">
+              <div class="w3-row w3-margin-top">
+                <label class="w3-text-blue"><b>Data inizio</b></label>
+                <input class="w3-input w3-border w3-card-4" id="d_s" type="date">
+              </div>
+              <div class="w3-row">
+                <label class="w3-text-blue"><b>Data fine</b></label>
+                <input class="w3-input w3-border w3-card-4" id="d_f" type="date">
+              </div>
+              <div class="w3-row w3-card-4 w3-margin-top w3-margin-bottom w3-padding w3-round-xlarge">
+                <p>
+                <input class="w3-radio" name="selOpt" id="r_Prm" type="radio">
+                <label class="w3-small">Premi</label></p>
+                <p>
+                <input class="w3-radio" name="selOpt" id="r_PrmOpr" type="radio">
+                <label class="w3-small">Premi Operatore</label></p>
+                <p>
+                <input class="w3-radio" name="selOpt" id="r_Prc" type="radio" disabled>
+                <label class="w3-small">Percentuali</label></p>
+                <p>
+                <input class="w3-radio" name="selOpt" id="r_ST" type="radio" checked>
+                <label class="w3-small">Smart Test</label></p>
+              </div>
+              <div class="w3-row w3-margin-bottom w3-card-4"> <!--<button class="w3-button w3-block w3-light-grey" onclick="options();">Options</button>-->
+                <div class="w3-col s4 m12 l5">
+                  <button class="w3-button w3-block w3-dark-grey" onclick="backLCList();">Indietro</button>
+                </div>
+                <div class="w3-col s8 m12 l7">
+                  <button class="w3-button w3-block w3-green" onclick="calcBeneficit();">Calcola</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="w3-col l7 m7 w3-container">
+            <p><i>Elimina LCL, premendo su "x":</i></p>
+            <div class="w3-col w3-margin-bottom">
+              <ul id="addListLCL" class="w3-ul w3-card-4 w3-round-xlarge">
+                <!-- Injection JavaScript -->
+              </ul>
+            </div>
+            <p id="txtRemoveList" class="w3-margin-top" style="display: none;">
+              <i>Agiungi il contratto, premendosu "+":</i>
+            </p>
+            <div class="w3-col w3-margin-bottom">
+              <ul id="removeListLCL" class="w3-ul w3-card-4 w3-round-xlarge">
+                <!-- Injection JavaScript -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w3-col l2 m1">
+        <p></p>
+      </div>
+    </div>
+    <div id="modalEditLCL" class="w3-modal">
+      <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
+
+        <div class="w3-center"><br>
+          <span onclick="closeModaLCL();" class="w3-button w3-xlarge w3-hover-red w3-display-topright"
+            title="Close Modal">&times;</span>
+        </div>
+
+        <div class="w3-container">
+          <h2 id="labelLCL">
+            <!-- Injection JavaScript -->
+          </h2>
+          <div class="w3-section">
+            <label><b>Tipo LCL</b></label>
+            <select id="typeLCL" class="w3-select w3-border" name="option">
+              <!--<option value="" disabled selected>Choose your option</option>-->
+              <option value="MF">MF-TF</option>
+              <option value="TF">TF-15/30</option>
+              <option value="MF_R">MF-TF Ripassi</option>
+              <option value="TF_R">TF-15/30 Ripassi</option>
+              <option value="M2">M2</option>
+            </select>
+          </div>
+          <div class="w3-section">
+            <label><b>Data</b></label>
+            <input id="dateLCL" class="w3-input w3-border w3-margin-bottom" type="date" value="1998-08-08" required
+              disabled>
+          </div>
+        </div>
+
+        <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+          <div class="w3-bar noStamp"><button class="w3-button w3-left w3-red"
+              onclick="closeModaLCL();">Annulla</button><button class="w3-button w3-right w3-green"
+              id="ModalButtonSaveLCL" onclick="">Salva</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="optionsTab" class="w3-container" style="display: none;">
+    <div class="w3-row w3-margin-top w3-margin-bottom">
+      <div class="w3-col l3 m1">
+        <p></p>
+      </div>
+      <div class="w3-col l6 m10 w3-round-xlarge">
+        <div id="optionsList" class="w3-col w3-margin-bottom">
+          <!-- Injection JavaScript -->
+        </div>
+        <div class="w3-bar noStamp">
+          <button class="w3-button w3-left w3-dark-grey" onclick="backOp();">&laquo; Back</button>
+          <button class="w3-button w3-left w3-light-grey" disabled onclick="options();">Save Options</button>
+        </div>
+        <div class="w3-col l3 m1">
+          <p></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalEditOp" class="w3-modal">
+      <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
+
+        <div class="w3-center"><br>
+          <span onclick="closeModal();" class="w3-button w3-xlarge w3-hover-red w3-display-topright"
+            title="Close Modal">&times;</span>
+        </div>
+
+        <div class="w3-container">
+          <h2 id="labelCN">
+            <!-- Injection JavaScript -->
+          </h2>
+          <div class="w3-section">
+            <label><b>Euro/Punto MF-TF</b></label>
+            <input id="epMF" class="w3-input w3-border w3-margin-bottom" type="number" placeholder="Euro" step="0.01"
+              min="0.01" max="10" required>
+          </div>
+          <div class="w3-section">
+            <label><b>Euro/Punto TF15/30</b></label>
+            <input id="epTF" class="w3-input w3-border w3-margin-bottom" type="number" placeholder="Euro" step="0.01"
+              min="0.01" max="10" required>
+          </div>
+          <div class="w3-section">
+            <label><b>Euro/Punto M2</b></label>
+            <input id="epM2" class="w3-input w3-border w3-margin-bottom" type="number" placeholder="Euro" step="0.01"
+              min="0.01" max="10" required>
+          </div>
+        </div>
+
+        <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+          <div class="w3-bar noStamp"><button class="w3-button w3-left w3-red"
+              onclick="closeModal();">Cancel</button><button class="w3-button w3-right w3-green" id="ModalButtonSave"
+              onclick="">Save</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="BeneficitTab" class="w3-container w3-padding-64 w3-small" style="display: none;">
+    <div class="w3-row w3-margin-top">
+      <div class="w3-col l3 m1 w3-hide-small">
+        <p></p>
+      </div>
+      <div class="w3-col l6 m10 s12">
+        <div id="listCnLCL" class="w3-center">
+          <!-- Injection JavaScript -->
+        </div>
+        <style>
+          @media print {
+            .noStamp {
+              opacity: 0;
+              display: none;
+            }
+          }
+        </style>
+        <div class="w3-bar w3-medium noStamp">
+          <button class="w3-button w3-left w3-dark-grey" onclick="backBeneficit();">« Back</button>
+          <button class="w3-button w3-right w3-green" onclick="Print();">Print &raquo;</button>
+          <button class="w3-button w3-right w3-light-grey" onclick="download_csv();" disabled>Download</button>
+        </div>
+      </div>
+      <div class="w3-col l3 m1 w3-hide-small">
+        <p></p>
+      </div>
+    </div>
+  </div>
+
+</body>
+<script src="db.js"></script>
+<script src="uiCommands.js"></script>
+<script src="excel.js"></script>
+
+</html>

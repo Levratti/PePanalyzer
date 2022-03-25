@@ -1,0 +1,317 @@
+<div id="tabPerCent" class="w3-white" style="position:absolute;width:100%;height:100%;opacity:1;z-index:100;">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <!--<script src="https://www.w3schools.com/lib/w3.js"></script>-->
+    <div id="startPage" class="w3-container">
+        <div class="w3-row w3-margin-top w3-margin-bottom">
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+            <div class="w3-col m6">
+                <h2 id="pharStartPage">Ehhi non ti dimentichi nulla</h2>
+                <p id="txtStartPage"><i>Per far funzionare questo bellisimo e utile script devi aggiungere LCL che ti
+                        interessano. Per farlo devi andare in "Controllo attività" -> "Riapilogo attività" e fare la
+                        ricerca di ogni LCL interressata.</i></p>
+                <div class="w3-bar"><button class="w3-button w3-dark-grey"
+                        onclick="document.querySelector('#tabPerCent').remove();">&laquo; Close</button></div>
+            </div>
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div id="selectCN" class="w3-container" style="display: none;">
+        <div class="w3-row w3-margin-top w3-margin-bottom">
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+            <div class="w3-col m6">
+                <h2>Contratto</h2>
+                <p><i>Elimina il contratto, premendo su "x":</i></p>
+                <div class="w3-col w3-center w3-margin-bottom">
+                    <ul id="addListCN" class="w3-ul w3-card-4">
+                        <!-- Injection JavaScript -->
+                    </ul>
+                </div>
+                <p id="txtRemoveList" class="w3-margin-top" style="display: none;"><i>Agiungi il contratto, premendosu
+                        "+":</i></p>
+                <div class="w3-col w3-center w3-margin-bottom">
+                    <ul id="removeListCN" class="w3-ul w3-card-4">
+                        <!-- Injection JavaScript -->
+                    </ul>
+                </div>
+                <div class="w3-bar"><button class="w3-button w3-left w3-dark-grey"
+                        onclick="document.querySelector('#tabPerCent').remove();">&laquo; Close</button><button
+                        class="w3-button w3-left w3-light-grey" onclick="options();">Options</button><button
+                        class="w3-button w3-right w3-green" onclick="calcPerCent();">Next&raquo;</button></div>
+            </div>
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div id="perCentTab" class="w3-container w3-padding-64" style="display: none;">
+        <div class="w3-row w3-margin-top">
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+            <div class="w3-col m6">
+                <div id="listCnLCL" class="w3-center">
+                    <!-- Injection JavaScript -->
+                </div>
+                <style>
+                    @media print {
+                        .noStamp {
+                            opacity: 0;
+                            display: none;
+                        }
+                    }
+                </style>
+                <div class="w3-bar noStamp"><button class="w3-button w3-left w3-dark-grey" onclick="clearAll();">&laquo;
+                        Back</button><button class="w3-button w3-right w3-green"
+                        onclick="Print();">Print&raquo;</button></div>
+            </div>
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <div id="optionsTab" class="w3-container" style="display: none;">
+        <div class="w3-row w3-margin-top w3-margin-bottom">
+            <div class="w3-col m3">
+                <p></p>
+            </div>
+            <div class="w3-col m6">
+                <div id="optionsList" class="w3-col w3-margin-bottom">
+                    <!-- Injection JavaScript -->
+                </div>
+                <div class="w3-bar noStamp"><button class="w3-button w3-left w3-dark-grey" onclick="clearAll();">&laquo;
+                        Back</button></div>
+                <div class="w3-col m3">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.load = function () {
+        if (localStorage.getItem("PerCent")) {
+            var Cn = JSON.parse(localStorage.getItem("PerCent"));
+
+            if (Cn.length > 0) {
+                for (let i = 0; i < Cn.length; i++) {
+                    var CNexist = false;
+                    for (let j = 0; j < document.querySelector("#addListCN").childElementCount; j++) {
+                        if (document.querySelector("#addListCN").children[j].id == Cn[i].CN) {
+                            CNexist = true;
+                        }
+                    }
+
+                    if (CNexist == false) {
+                        var element = document.createElement("li");
+                        element.classList.add("w3-display-container"); //<i class="w3-tiny"> (update 3 day ago)</i>
+                        element.id = Cn[i].CN;
+                        element.innerHTML = '<b>' + Cn[i].CN + '</b><span onclick="changeCN(this.parentElement)" class="w3-button w3-transparent w3-display-right">&times;</span>';
+                        document.querySelector("#addListCN").appendChild(element);
+                    }
+                }
+
+                document.querySelector("#startPage").style.display = "none";
+                document.querySelector("#selectCN").style.display = "block";
+            }
+        }
+    }
+
+    window.clearAll = function () {
+        document.querySelector("#listCnLCL").innerHTML = "";
+        document.querySelector("#optionsList").innerHTML = "";
+        document.querySelector("#selectCN").style.display = "block";
+        document.querySelector("#perCentTab").style.display = "none";
+        document.querySelector("#optionsTab").style.display = "none";
+    }
+
+    window.calcPerCent = function () {
+        var CnList = document.querySelector("#addListCN").children;
+        console.log(CnList);
+
+        for (let i = 0; i < CnList.length; i++) {
+
+            var divObject = document.createElement('div');
+            divObject.classList.add("w3-containery");
+            divObject.classList.add("w3-light-grey");
+            divObject.classList.add("w3-card-4");
+            divObject.innerHTML = '<h2>' + CnList[i].id + '</h2><table id="lclPerCent" class="w3-table-all w3-hoverable w3-margin-bottom"><thead><tr class="w3-green"><th>LCL</th><th>CON</th><th>AVV</th><th>TOT</th><th>%</th><th>92%</th><th>96%</th></tr></thead><!-- Injection JavaScript --></table>';
+
+            var Cn = JSON.parse(localStorage.getItem("PerCent"));
+            Cn.sort(function (a, b) {
+                return a.LCL - b.LCL;
+            });
+            var count = Object.keys(Cn).length
+            for (let j = 0; j < count; j++) {
+                if (Cn[j].CN == CnList[i].id) {
+                    var row = document.createElement("tr");
+                    var perCent = ((Cn[j].CON * 100) / (Cn[j].TOT - Cn[j].AV)).toFixed(2);
+                    var sti92 = (((92 * (Cn[j].TOT - Cn[j].AV) / 100) - Cn[j].CON) + 1).toFixed(0);
+                    var sti96 = (((96 * (Cn[j].TOT - Cn[j].AV) / 100) - Cn[j].CON) + 1).toFixed(0);
+                    if (sti92 <= 0) sti92 = "OK";
+                    if (sti96 <= 0) sti96 = "OK";
+
+                    const diffTime = Math.abs(new Date(Cn[j].Date) - new Date());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                    var dataHtml = '<i class="w3-tiny noStamp"> (update ' + diffDays + ' day ago)</i>';
+                    if (diffDays <= 0) {
+                        var time = new Date(Cn[j].Date).toLocaleTimeString();
+                        dataHtml = '<i class="w3-tiny noStamp"> (update ' + time + ')</i>';
+                    }
+                    row.innerHTML = "<td>" + Cn[j].LCL + dataHtml + "</td>" + "<td>" + Cn[j].CON + "</td>" + "<td>" + Cn[j].AV + "</td>" + "<td>" + Cn[j].TOT + "</td>" + "<td>" + perCent + "%</td>" + "<td>" + sti92 + "</td>" + "<td>" + sti96 + "</td>";
+                    divObject.querySelector("#lclPerCent").appendChild(row);
+                }
+            }
+            document.querySelector("#listCnLCL").appendChild(divObject);
+        }
+
+        document.querySelector("#selectCN").style.display = "none";
+        document.querySelector("#perCentTab").style.display = "block";
+    }
+
+    window.deleteLCL = function (element) {
+        if (localStorage.getItem("PerCent")) {
+            var Cn = JSON.parse(localStorage.getItem("PerCent"));
+            for (let i = 0; i < Cn.length; i++) {
+                if (Cn[i].LCL == element.firstChild.textContent) {
+                    Cn.splice(i, 1);
+                    if (element.parentNode.childElementCount <= 2) {
+                        element.parentNode.remove();
+                        document.querySelector("#addListCN").innerHTML = "";
+                        document.querySelector("#removeListCN").innerHTML = "";
+
+                        if (localStorage.getItem("PerCent")) {
+                            var CnLoad = JSON.parse(localStorage.getItem("PerCent"));
+
+                            if (Cn.length > 0) {
+                                for (let i = 0; i < CnLoad.length; i++) {
+                                    var CNexist = false;
+                                    for (let j = 0; j < document.querySelector("#addListCN").childElementCount; j++) {
+                                        if (document.querySelector("#addListCN").children[j].id == CnLoad[i].CN) {
+                                            CNexist = true;
+                                        }
+                                    }
+
+                                    if (CNexist == false) {
+                                        var elementLoad = document.createElement("li");
+                                        elementLoad.classList.add("w3-display-container"); //<i class="w3-tiny"> (update 3 day ago)</i>
+                                        elementLoad.id = CnLoad[i].CN;
+                                        elementLoad.innerHTML = '<b>' + CnLoad[i].CN + '</b><span onclick="changeCN(this.parentElement)" class="w3-button w3-transparent w3-display-right">&times;</span>';
+                                        document.querySelector("#addListCN").appendChild(elementLoad);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    element.remove();
+
+                    if (document.querySelector("#optionsList").childElementCount <= 0) {
+                        document.querySelector("#listCnLCL").innerHTML = "";
+                        document.querySelector("#optionsList").innerHTML = "";
+                        document.querySelector("#addListCN").innerHTML = "";
+                        document.querySelector("#removeListCN").innerHTML = "";
+                        document.querySelector("#pharStartPage").textContent = "Ehii che fai";
+                        document.querySelector("#txtStartPage").innerHTML = "<i>Perché elimini tutto? Non hai altro da fare</i>";
+                        document.querySelector("#perCentTab").style.display = "none";
+                        document.querySelector("#optionsTab").style.display = "none";
+                        document.querySelector("#selectCN").style.display = "none";
+                        document.querySelector("#startPage").style.display = "block";
+                    }
+                }
+            }
+            localStorage.setItem("PerCent", JSON.stringify(Cn));
+        }
+    }
+
+    window.options = function () {
+        if (localStorage.getItem("PerCent")) {
+            var Cn = JSON.parse(localStorage.getItem("PerCent"));
+
+            Cn.sort(function (a, b) {
+                return a.LCL - b.LCL;
+            });
+
+            for (let i = 0; i < Cn.length; i++) {
+                var CNexist = false;
+                for (let j = 0; j < document.querySelector("#optionsList").childElementCount; j++) {
+                    if (document.querySelector("#optionsList").children[j].id == (Cn[i].CN + "O")) {
+                        CNexist = true;
+
+                        var element = document.createElement("li");
+                        element.classList.add("w3-display-container");
+                        element.innerHTML = '<b>' + Cn[i].LCL + '</b>' + dataHtml + '<span onclick="deleteLCL(this.parentElement)"class="w3-button w3-transparent w3-display-right w3-hover-red">×</span>';
+
+                        document.getElementById(Cn[i].CN + "O").appendChild(element);
+                    }
+                }
+
+                if (CNexist == false) {
+                    var element = document.createElement("ul");
+                    element.classList.add("w3-ul");
+                    element.classList.add("w3-card-4");
+                    element.classList.add("w3-margin-top");
+                    element.classList.add("w3-margin-bottom");
+                    element.id = Cn[i].CN + "O";
+                    const diffTime = Math.abs(new Date(Cn[i].Date) - new Date());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                    var dataHtml = '<i class="w3-tiny noStamp"> (update ' + diffDays + ' day ago)</i>';
+                    if (diffDays <= 0) {
+                        var time = new Date(Cn[i].Date).toLocaleTimeString();
+                        dataHtml = '<i class="w3-tiny noStamp"> (update ' + time + ')</i>';
+                    }
+                    element.innerHTML = '<!-- Injection JavaScript --><li><h2>' + Cn[i].CN + '</h2></li><li class="w3-display-container"><b>' + Cn[i].LCL + '</b>' + dataHtml + '<span onclick="deleteLCL(this.parentElement)"class="w3-button w3-transparent w3-display-right w3-hover-red">×</span></li>';
+                    document.querySelector("#optionsList").appendChild(element);
+                }
+            }
+
+            document.querySelector("#startPage").style.display = "none";
+            document.querySelector("#selectCN").style.display = "block";
+        }
+
+
+        document.querySelector("#selectCN").style.display = "none";
+        document.querySelector("#optionsTab").style.display = "block";
+    }
+
+    window.changeCN = function (element) {
+        if (element.parentElement.id == "addListCN" && document.querySelector('#addListCN').children.length > 1) {
+            element.lastChild.innerHTML = "&plus;";
+            document.querySelector("#removeListCN").appendChild(element);
+        } else if (element.parentElement.id == "removeListCN") {
+            element.lastChild.innerHTML = "&times;";
+            document.querySelector("#addListCN").appendChild(element);
+        }
+
+        if (document.querySelector('#removeListCN').children.length > 0) {
+            document.querySelector("#txtRemoveList").style.display = "block";
+        } else {
+            document.querySelector("#txtRemoveList").style.display = "none";
+        }
+    }
+
+    window.Print = function () {
+        var resultList = document.querySelector("#perCentTab").innerHTML;
+
+        var a = window.open('', '', 'width=733,height=454');
+        a.document.open("text/html");
+        a.document.write('<html><head><title>');
+        a.document.write('PerCent');
+        a.document.write('</title>');
+        a.document.write('<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">');
+        a.document.write('<style>body{opacity: 0}@media print { body{opacity: 1}}</style>');
+        a.document.write('</head><body style="overflow: hidden;">');
+        a.document.write(resultList);
+        a.document.write("</body></html>");
+
+        a.document.close(); // necessary for IE >= 10
+        a.focus(); // necessary for IE >= 10*/
+
+        setTimeout(function () { a.print(); a.close(); }, 600);
+    }
+</script>
