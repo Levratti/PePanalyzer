@@ -61,7 +61,7 @@ function getLCL(data) {
     data.forEach(row => {
         var LCLexist = false;
         LCLs.forEach(lcl => {
-            if (row.CODICE_LCL == lcl.CODICE_LCL) {
+            if (row["CodiceLCL"] == lcl.CODICE_LCL) {
                 LCLexist = true;
             }
         });
@@ -71,30 +71,30 @@ function getLCL(data) {
 
             //Castel per determinare se è 15/30
             var typelcl = "MF";
-            var typeCE = row.CODICE_ANTE_SOSTITUZIONE.substring(4, 5);
-            if (row.MOTIV_RICH == "PRM2") {
+            var typeCE = row["CodiceAnteSostituzione"].substring(4, 5);
+            if (row["MotRich"] == "PRM2") {
                 typelcl = "M2";
             }
-            else if (row.MOTIV_RICH == "RI2G" && typeCE != "F") {
+            else if (row["MotRich"] == "RI2G" && typeCE != "F") {
                 typelcl = "MF_R";
             }
-            else if (row.MOTIV_RICH == "RI2G" && typeCE == "F") {
+            else if (row["MotRich"] == "RI2G" && typeCE == "F") {
                 typelcl = "TF_R";
             }
-            else if (row.MOTIV_RICH == "MA2G" && typeCE != "F") {
+            else if (row["MotRich"] == "MA2G" && typeCE != "F") {
                 typelcl = "MF";
             }
-            else if (row.MOTIV_RICH == "MA2G" && typeCE == "F") {
+            else if (row["MotRich"] == "MA2G" && typeCE == "F") {
                 typelcl = "TF";
             }
 
             let LCL = {
-                "CODICE_CONTRATTO": row.CODICE_CONTRATTO,
-                "CODICE_LCL": row.CODICE_LCL,
+                "CODICE_CONTRATTO": row["CodiceContratto"],
+                "CODICE_LCL": row["CodiceLCL"],
                 "TIPO_LCL": typelcl,
-                "STATO_LCL": row.STATO_LCL,
-                "DATA_INIZIO_LCL": row.DATA_INIZIO_LCL,
-                "DATA_FINE_LCL": row.DATA_FINE_LCL,
+                "STATO_LCL": row["StatoLCL"],
+                "DATA_INIZIO_LCL": row["DataInizioLCL"],
+                "DATA_FINE_LCL": row["DataFineLCL"],
                 "SELECT": true,
             };
 
@@ -313,6 +313,12 @@ function calcBeneficit() {
         TotOP: {},
     };
 
+    
+    let totLCLs = {
+        LCL: {},
+        Tot: {},
+    };
+
     let DATA_INIZIO = new Date(new Date(document.querySelector("#d_s").value) - (60 * 60 * 1000)*2);
     let DATA_FINE = new Date(new Date(document.querySelector("#d_f").value) - (60 * 60 * 1000));
 
@@ -360,14 +366,14 @@ function calcBeneficit() {
             };*/
 
             saveLoadFile.forEach(row => {
-                if (rowLCL.CODICE_LCL == row.CODICE_LCL) {
+                if (rowLCL.CODICE_LCL == row["CodiceLCL"]) {
                     LCL.TOT += 1;
-                    if (row.STATO_RDA == "ANN") {
-                        if (row.MOTIVO_ANNULLAMENTO == "Annullata per insuccesso" && (DATA_INIZIO <= new Date(row.DATA_INSUCCESSO) && new Date(row.DATA_INSUCCESSO) <= DATA_FINE)) {
+                    if (row["StatoAttivita"] == "ANN") {
+                        if (row["MotivoAnnullamento"] == "Annullata per insuccesso" && (DATA_INIZIO <= new Date(row["DataInsuccesso"]) && new Date(row["DataInsuccesso"]) <= DATA_FINE)) {
                             LCL.AV += 1;
 
-                            if (LCL.Operatori[row.ESECUTORE] == undefined) {
-                                LCL.Operatori[row.ESECUTORE] = {
+                            if (LCL.Operatori[row["Esecutore"]] == undefined) {
+                                LCL.Operatori[row["Esecutore"]] = {
                                     CON: 0,
                                     AV: 0,
                                     INT: 0,
@@ -379,19 +385,19 @@ function calcBeneficit() {
                                     ST_Negativo: 0,
                                 };
                             }
-                            LCL.Operatori[row.ESECUTORE].AV += 1;
-                        } else if (DATA_INIZIO <= new Date(row.DATA_ANNULLAMENTO) && new Date(row.DATA_ANNULLAMENTO) <= DATA_FINE) {
+                            LCL.Operatori[row["Esecutore"]].AV += 1;
+                        } else if (DATA_INIZIO <= new Date(row["DataAnnullamento"]) && new Date(row["DataAnnullamento"]) <= DATA_FINE) {
                             LCL.ANN += 1;
                         }
-                    } else if ( (row.STATO_RDA == "CON" || row.STATO_RDA == "RESC") && (DATA_INIZIO <= new Date(row.DATA_INSTALLAZIONE) && new Date(row.DATA_INSTALLAZIONE) <= DATA_FINE)) {
+                    } else if ( (row["StatoAttivita"] == "CON" || row["StatoAttivita"] == "RESC") && (DATA_INIZIO <= new Date(row["DataInstallazione"]) && new Date(row["DataInstallazione"]) <= DATA_FINE)) {
                         LCL.CON += 1;
 
                         //console.log(DATA_INIZIO);
                         //console.log(DATA_FINE);
-                        //console.log(row.DATA_INSTALLAZIONE);
+                        //console.log(row["DataInstallazione"]);
 
-                        if (PremioOs.TotOP[row.ESECUTORE] == undefined) {
-                            PremioOs.TotOP[row.ESECUTORE] = {
+                        if (PremioOs.TotOP[row["Esecutore"]] == undefined) {
+                            PremioOs.TotOP[row["Esecutore"]] = {
                                 M2: 0,
                                 TF15_30: 0,
                                 TF15_30_R: 0,
@@ -403,11 +409,11 @@ function calcBeneficit() {
                             };
                         }
 
-                        if (PremioOs.Date[row.DATA_INSTALLAZIONE] == undefined) {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE] = {};
+                        if (PremioOs.Date[row["DataInstallazione"]] == undefined) {
+                            PremioOs.Date[row["DataInstallazione"]] = {};
                         }
-                        if (PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE] == undefined) {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE] = {
+                        if (PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]] == undefined) {
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]] = {
                                 M2: 0,
                                 TF15_30: 0,
                                 TF15_30_R: 0,
@@ -420,49 +426,49 @@ function calcBeneficit() {
                         }
 
                         if (rowLCL.TIPO_LCL == "M2") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].M2 += 1;
-                            PremioOs.TotOP[row.ESECUTORE].M2 += 1;
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].M2 += 1;
+                            PremioOs.TotOP[row["Esecutore"]].M2 += 1;
                         } else if (rowLCL.TIPO_LCL == "TF") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].TF15_30 += 1;
-                            PremioOs.TotOP[row.ESECUTORE].TF15_30 += 1;
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].TF15_30 += 1;
+                            PremioOs.TotOP[row["Esecutore"]].TF15_30 += 1;
                         } else if (rowLCL.TIPO_LCL == "TF_R") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].TF15_30_R += 1;
-                            PremioOs.TotOP[row.ESECUTORE].TF15_30_R += 1;
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].TF15_30_R += 1;
+                            PremioOs.TotOP[row["Esecutore"]].TF15_30_R += 1;
                         } else if (rowLCL.TIPO_LCL == "MF") {
-                            if (row.POSIZIONE_MIS_POST_SOST == "1 - Nell'appartamento" && new Date(row.DATA_INSTALLAZIONE) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
-                                PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].MF_INT += 1;
-                                PremioOs.TotOP[row.ESECUTORE].MF_INT += 1;
+                            if (row["PosizioneMisPostSost"] == "1 - Nell'appartamento" && new Date(row["DataInstallazione"]) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
+                                PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].MF_INT += 1;
+                                PremioOs.TotOP[row["Esecutore"]].MF_INT += 1;
                             } else {
-                                PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].MF += 1;
-                                PremioOs.TotOP[row.ESECUTORE].MF += 1;
+                                PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].MF += 1;
+                                PremioOs.TotOP[row["Esecutore"]].MF += 1;
                             }
                         } else if (rowLCL.TIPO_LCL == "MF_R") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].MF_R += 1;
-                            PremioOs.TotOP[row.ESECUTORE].MF_R += 1;
-                            /*if (row.POSIZIONE_MIS_POST_SOST == "1 - Nell'appartamento" && new Date(row.DATA_INSTALLAZIONE) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
-                                PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].MF_INT += 1;
-                                PremioOs.TotOP[row.ESECUTORE].MF_INT += 1;
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].MF_R += 1;
+                            PremioOs.TotOP[row["Esecutore"]].MF_R += 1;
+                            /*if (row["PosizioneMisPostSost"] == "1 - Nell'appartamento" && new Date(row["DataInstallazione"]) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
+                                PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].MF_INT += 1;
+                                PremioOs.TotOP[row["Esecutore"]].MF_INT += 1;
                             } else {
-                                PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].MF += 1;
-                                PremioOs.TotOP[row.ESECUTORE].MF += 1;
+                                PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].MF += 1;
+                                PremioOs.TotOP[row["Esecutore"]].MF += 1;
                             }*/
                         }
 
-                        if (row.ESITO_SMARTEST == "Non eseguibile per Errore di connessione con la sonda BIRD" || row.ESITO_SMARTEST == "Non eseguibile per Errore di connessione con la sonda ARES") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].ST += 1;
-                            PremioOs.TotOP[row.ESECUTORE].ST += 1;
-                        } else if (row.ESITO_SMARTEST == "Annullato") {
-                            PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].ST += 1;
-                            PremioOs.TotOP[row.ESECUTORE].ST += 1;
+                        if (row["EsitoSmartTest"] == "Non eseguibile per Errore di connessione con la sonda BIRD" || row["EsitoSmartTest"] == "Non eseguibile per Errore di connessione con la sonda ARES") {
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].ST += 1;
+                            PremioOs.TotOP[row["Esecutore"]].ST += 1;
+                        } else if (row["EsitoSmartTest"] == "Annullato") {
+                            PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].ST += 1;
+                            PremioOs.TotOP[row["Esecutore"]].ST += 1;
                         }
 
-                        PremioOs.Date[row.DATA_INSTALLAZIONE][row.ESECUTORE].TOT += 1;
-                        PremioOs.TotOP[row.ESECUTORE].TOT += 1;
+                        PremioOs.Date[row["DataInstallazione"]][row["Esecutore"]].TOT += 1;
+                        PremioOs.TotOP[row["Esecutore"]].TOT += 1;
 
-                        //console.log(row.ESECUTORE.replace(/[^A-Z0-9]+/ig, ""));  errore spazio indisiderato "AE100492 "
+                        //console.log(row["Esecutore"].replace(/[^A-Z0-9]+/ig, ""));  errore spazio indisiderato "AE100492 "
                         //Salvare in qualche modo eneltel dei contatori eseguiti senza operatore
-                        if (LCL.Operatori[row.ESECUTORE] == undefined) {
-                            LCL.Operatori[row.ESECUTORE] = {
+                        if (LCL.Operatori[row["Esecutore"]] == undefined) {
+                            LCL.Operatori[row["Esecutore"]] = {
                                 CON: 0,
                                 AV: 0,
                                 INT: 0,
@@ -474,52 +480,52 @@ function calcBeneficit() {
                                 ST_Negativo: 0,
                             };
                         }
-                        LCL.Operatori[row.ESECUTORE].CON += 1;
-                        if (row.ESITO_SMARTEST != undefined) {
-                            LCL.Operatori[row.ESECUTORE].ST_CON += 1;
+                        LCL.Operatori[row["Esecutore"]].CON += 1;
+                        if (row["EsitoSmartTest"] != undefined) {
+                            LCL.Operatori[row["Esecutore"]].ST_CON += 1;
                             LCL.ST_CON += 1;
                         }
 
 
-                        const diffTime = Math.abs(new Date(row.DATA_INIZIO_LCL) - new Date(row.DATA_INSTALLAZIONE));
+                        const diffTime = Math.abs(new Date(row["DataInizioLCL"]) - new Date(row["DataInstallazione"]));
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
                         if (diffDays <= 30) {
                             LCL.GG1 += 1;
                         } else if (diffDays > 30 && diffDays <= 90) {
                             LCL.GG2 += 1;
-                            if (row.POSIZIONE_MIS_POST_SOST == "1 - Nell'appartamento" && new Date(row.DATA_INSTALLAZIONE) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
+                            if (row["PosizioneMisPostSost"] == "1 - Nell'appartamento" && new Date(row["DataInstallazione"]) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
                                 LCL.INTR += 1;
                             }
                         } else if (diffDays > 90 && diffDays <= 120) {
                             LCL.GG3 += 1;
-                            if (row.POSIZIONE_MIS_POST_SOST == "1 - Nell'appartamento" && new Date(row.DATA_INSTALLAZIONE) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
+                            if (row["PosizioneMisPostSost"] == "1 - Nell'appartamento" && new Date(row["DataInstallazione"]) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
                                 LCL.INTR += 1;
                             }
                         }
 
-                        if (row.ESITO_SMARTEST == "Positivo" || row.ESITO_SMARTEST == "Negativo") {
+                        if (row["EsitoSmartTest"] == "Positivo" || row["EsitoSmartTest"] == "Negativo") {
                             LCL.Smartest.ST_Eseguito += 1;
-                            LCL.Operatori[row.ESECUTORE].ST_Eseguito += 1;
+                            LCL.Operatori[row["Esecutore"]].ST_Eseguito += 1;
 
-                        } else if (row.ESITO_SMARTEST == "Non eseguibile per carico sotto soglia") {
+                        } else if (row["EsitoSmartTest"] == "Non eseguibile per carico sotto soglia") {
                             LCL.Smartest.ST_Carico += 1;
-                            LCL.Operatori[row.ESECUTORE].ST_Carico += 1;
+                            LCL.Operatori[row["Esecutore"]].ST_Carico += 1;
 
-                        } else if (row.ESITO_SMARTEST == "Non eseguibile per Errore di connessione con la sonda BIRD" || row.ESITO_SMARTEST == "Non eseguibile per Errore di connessione con la sonda ARES") {
+                        } else if (row["EsitoSmartTest"] == "Non eseguibile per Errore di connessione con la sonda BIRD" || row["EsitoSmartTest"] == "Non eseguibile per Errore di connessione con la sonda ARES") {
                             LCL.Smartest.ST_Connect += 1;
-                            LCL.Operatori[row.ESECUTORE].ST_Connect += 1;
+                            LCL.Operatori[row["Esecutore"]].ST_Connect += 1;
 
-                        } else if (row.ESITO_SMARTEST == "Annullato") {
+                        } else if (row["EsitoSmartTest"] == "Annullato") {
                             LCL.Smartest.ST_Annullato += 1;
-                            LCL.Operatori[row.ESECUTORE].ST_Annullato += 1;
+                            LCL.Operatori[row["Esecutore"]].ST_Annullato += 1;
 
                         }
 
-                        if (row.POSIZIONE_MIS_POST_SOST == "1 - Nell'appartamento" && new Date(row.DATA_INSTALLAZIONE) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
+                        if (row["PosizioneMisPostSost"] == "1 - Nell'appartamento" && new Date(row["DataInstallazione"]) >= new Date("8/11/2020")) {//dopo l’11/8/20 – data in cui è stata accettata la comunicazione che la introduceva
                             LCL.INT += 1;
 
-                            if (LCL.Operatori[row.ESECUTORE] == undefined) {
-                                LCL.Operatori[row.ESECUTORE] = {
+                            if (LCL.Operatori[row["Esecutore"]] == undefined) {
+                                LCL.Operatori[row["Esecutore"]] = {
                                     CON: 0,
                                     AV: 0,
                                     INT: 0,
@@ -531,7 +537,7 @@ function calcBeneficit() {
                                     ST_Negativo: 0,
                                 };
                             }
-                            LCL.Operatori[row.ESECUTORE].INT += 1;
+                            LCL.Operatori[row["Esecutore"]].INT += 1;
                         }
                     }
                 }
@@ -578,6 +584,12 @@ function calcBeneficit() {
                     var tot = LCL[DB_Key] * CalcTable[rowLCL.TIPO_LCL][DB_Key] * eurPuntoCN;
                     subTot += tot;
 
+
+                    if (totLCLs.Tot[DB_Key] == undefined) {
+                        totLCLs.Tot[DB_Key] = 0;
+                    }
+                    totLCLs.Tot[DB_Key] += tot;
+
                     //ADD alert triangle
                     /*var warningTriangle = "";
                     if (DB_CEP.key == "GG1" || DB_CEP.key == "GG2" || DB_CEP.key == "GG3") {
@@ -586,6 +598,10 @@ function calcBeneficit() {
 
                     rowTable.innerHTML = "<td>" + CalcTable.Label[DB_Key] + "</td ><td class='w3-center'>" + LCL[DB_Key] + "</td><td class='w3-center'>" + parseFloat(CalcTable[rowLCL.TIPO_LCL][DB_Key]).toFixed(1) + "<i class='w3-tiny'>p</i></td><td class='w3-center'>" + parseFloat(eurPuntoCN).toFixed(2) + "€" + "</td><td class='w3-center'>" + formatter.format(tot) + "</td>";
                     divObject.querySelector("#lclPerCent").appendChild(rowTable);
+
+                    /*console.log(rowLCL.CODICE_LCL);
+                    console.log(CalcTable.Label[DB_Key]);
+                    console.log(formatter.format(subTot));*/
                 });
 
                 //Totale
@@ -593,6 +609,9 @@ function calcBeneficit() {
                 row.classList.add("w3-yellow");
                 row.innerHTML = "<td>" + "Totale:" + "</td><td></td><td></td><td></td><td class='w3-center'>" + formatter.format(subTot) + "</td>";
                 divObject.querySelector("#lclPerCent").appendChild(row);
+
+
+                totLCLs.LCL[rowLCL.CODICE_LCL] = formatter.format(subTot);
             }
 
             //Smartest Head
@@ -634,6 +653,52 @@ function calcBeneficit() {
     });
 
     saveResultBeneficit = LCLs;
+
+    if (document.querySelector("#r_Prm").checked == true) {
+        console.log(totLCLs);
+
+        var formatter = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+
+        var divObject = document.createElement('div');
+        divObject.classList.add("w3-containery");
+        divObject.setAttribute("style", "margin-bottom: 50px;");
+        divObject.classList.add("w3-light-grey");
+        divObject.classList.add("w3-card-4");
+
+        divObject.innerHTML = '<h2>' + "Totale" + '</h2><table id="lclPerCent" class="w3-table-all w3-hoverable w3-margin-bottom"></table>';
+
+        var rowST = document.createElement("thead");
+        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td>TOT</td></tr>";
+        divObject.querySelector("#lclPerCent").appendChild(rowST);
+
+        Object.keys(totLCLs.Tot).forEach(tipoBn => {
+            rowST = document.createElement("tr");
+            rowST.innerHTML = "<td>" + CalcTable.Label[tipoBn] + "</td><td><b>" + formatter.format(totLCLs.Tot[tipoBn]) + "</b></td >";
+            divObject.querySelector("#lclPerCent").appendChild(rowST);
+        })
+
+        document.querySelector("#listCnLCL").appendChild(divObject);
+
+        divObject = document.createElement('div');
+        divObject.classList.add("w3-containery");
+        divObject.setAttribute("style", "margin-bottom: 50px;");
+        divObject.classList.add("w3-light-grey");
+        divObject.classList.add("w3-card-4");
+
+        divObject.innerHTML = '<h2>' + "Totale LCL" + '</h2><table id="lclPerCent" class="w3-table-all w3-hoverable w3-margin-bottom"></table>';
+
+        rowST = document.createElement("thead");
+        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td>TOT</td></tr>";
+        divObject.querySelector("#lclPerCent").appendChild(rowST);
+
+        Object.keys(totLCLs.LCL).forEach(LCL => {
+            rowST = document.createElement("tr");
+            rowST.innerHTML = "<td>" + LCL + "</td><td><b>" + totLCLs.LCL[LCL] + "</b></td >";
+            divObject.querySelector("#lclPerCent").appendChild(rowST);
+        })
+
+        document.querySelector("#listCnLCL").appendChild(divObject);
+    }
 
 
     //Premio OP Head
