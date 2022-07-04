@@ -586,9 +586,10 @@ function calcBeneficit() {
 
 
                     if (totLCLs.Tot[DB_Key] == undefined) {
-                        totLCLs.Tot[DB_Key] = 0;
+                        totLCLs.Tot[DB_Key] = {CE: 0, Euro: 0};
                     }
-                    totLCLs.Tot[DB_Key] += tot;
+                    totLCLs.Tot[DB_Key].CE += LCL[DB_Key];
+                    totLCLs.Tot[DB_Key].Euro += tot;
 
                     //ADD alert triangle
                     /*var warningTriangle = "";
@@ -668,12 +669,12 @@ function calcBeneficit() {
         divObject.innerHTML = '<h2>' + "Totale" + '</h2><table id="lclPerCent" class="w3-table-all w3-hoverable w3-margin-bottom"></table>';
 
         var rowST = document.createElement("thead");
-        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td>TOT</td></tr>";
+        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td class='w3-center'>Contatori</td><td class='w3-right'>TOT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>";
         divObject.querySelector("#lclPerCent").appendChild(rowST);
 
         Object.keys(totLCLs.Tot).forEach(tipoBn => {
             rowST = document.createElement("tr");
-            rowST.innerHTML = "<td>" + CalcTable.Label[tipoBn] + "</td><td><b>" + formatter.format(totLCLs.Tot[tipoBn]) + "</b></td >";
+            rowST.innerHTML = "<td>" + CalcTable.Label[tipoBn] + "</td><td class='w3-center'>" + totLCLs.Tot[tipoBn].CE + "</td><td class='w3-right'><b>" + formatter.format(totLCLs.Tot[tipoBn].Euro) + "</b></td>";
             divObject.querySelector("#lclPerCent").appendChild(rowST);
         })
 
@@ -688,12 +689,12 @@ function calcBeneficit() {
         divObject.innerHTML = '<h2>' + "Totale LCL" + '</h2><table id="lclPerCent" class="w3-table-all w3-hoverable w3-margin-bottom"></table>';
 
         rowST = document.createElement("thead");
-        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td>TOT</td></tr>";
+        rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td class='w3-right'>TOT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>";
         divObject.querySelector("#lclPerCent").appendChild(rowST);
 
         Object.keys(totLCLs.LCL).forEach(LCL => {
             rowST = document.createElement("tr");
-            rowST.innerHTML = "<td>" + LCL + "</td><td><b>" + totLCLs.LCL[LCL] + "</b></td >";
+            rowST.innerHTML = "<td>" + LCL + "</td><td class='w3-right'><b>" + totLCLs.LCL[LCL] + "</b></td >";
             divObject.querySelector("#lclPerCent").appendChild(rowST);
         })
 
