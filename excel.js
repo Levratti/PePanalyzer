@@ -672,13 +672,23 @@ function calcBeneficit() {
         rowST.innerHTML = "<tr class='w3-blue'><td>Causale</td><td class='w3-center'>Contatori</td><td class='w3-right'>TOT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>";
         divObject.querySelector("#lclPerCent").appendChild(rowST);
 
+        let subTotale = 0;
         Object.keys(totLCLs.Tot).forEach(tipoBn => {
             rowST = document.createElement("tr");
             rowST.innerHTML = "<td>" + CalcTable.Label[tipoBn] + "</td><td class='w3-center'>" + totLCLs.Tot[tipoBn].CE + "</td><td class='w3-right'><b>" + formatter.format(totLCLs.Tot[tipoBn].Euro) + "</b></td>";
             divObject.querySelector("#lclPerCent").appendChild(rowST);
+
+            subTotale += totLCLs.Tot[tipoBn].Euro;
         })
 
+        rowST = document.createElement("tr");
+        rowST.classList.add("w3-yellow");
+        rowST.innerHTML = "<td>Totale:</td ><td class='w3-center'></td><td class='w3-right'>" + formatter.format(subTotale) + "</td>";
+        divObject.querySelector("#lclPerCent").appendChild(rowST);
+
         document.querySelector("#listCnLCL").appendChild(divObject);
+
+
 
         divObject = document.createElement('div');
         divObject.classList.add("w3-containery");
