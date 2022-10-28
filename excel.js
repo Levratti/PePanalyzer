@@ -15,6 +15,11 @@ document.getElementById('button').addEventListener("click", () => {
         let fileReader = new FileReader();
         let readFile = (index) => {
             if (index >= selectedFile.length) {
+
+
+                console.log(saveLoadFile);
+
+
                 getLCL(saveLoadFile);
                 return;
             }
@@ -25,9 +30,10 @@ document.getElementById('button').addEventListener("click", () => {
                 let data = event.target.result;
                 let workbook = XLSX.read(data, { type: "binary", cellDates: true, dateNF: 'dd/mm/yyyy' });
                 workbook.SheetNames.forEach(sheet => {
-                    let rowObject = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+                    let rowObject = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {range: 0});
 
                     saveLoadFile = saveLoadFile.concat(rowObject)
+
                     readFile(index + 1);
                 });
             }
