@@ -17,8 +17,19 @@ document.getElementById('button').addEventListener("click", () => {
             if (index >= selectedFile.length) {
 
 
-                console.log(saveLoadFile);
+                //console.log(saveLoadFile);
 
+                //Remove for key(header excel) " ", "_", ".", "'"
+                for (let i = 0; i < saveLoadFile.length; i++) {
+                    saveLoadFile[i] = Object.entries(saveLoadFile[i]).reduce((op, [key, value]) => {
+                        let newKey = key.replace(/(\W)|_/g, '');
+                        op[newKey || key] = value
+                        return op
+                    }, {})
+
+                }
+
+                console.log(saveLoadFile);
 
                 getLCL(saveLoadFile);
                 return;
@@ -30,7 +41,7 @@ document.getElementById('button').addEventListener("click", () => {
                 let data = event.target.result;
                 let workbook = XLSX.read(data, { type: "binary", cellDates: true, dateNF: 'dd/mm/yyyy' });
                 workbook.SheetNames.forEach(sheet => {
-                    let rowObject = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {range: 0});
+                    let rowObject = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { range: 0 });
 
                     saveLoadFile = saveLoadFile.concat(rowObject)
 
@@ -61,7 +72,9 @@ document.getElementById('button').addEventListener("click", () => {
     }*/
 });
 
-let saveListLCL = [];
+//const regexStabilizzeHead = /(\W)|_/g; //.replace(regexStabilizzeHead,'')
+
+let saveListLCL = [];  //.replace(/(\W)|_/g,'')
 function getLCL(data) {
     let LCLs = [];
     data.forEach(row => {
@@ -319,13 +332,13 @@ function calcBeneficit() {
         TotOP: {},
     };
 
-    
+
     let totLCLs = {
         LCL: {},
         Tot: {},
     };
 
-    let DATA_INIZIO = new Date(new Date(document.querySelector("#d_s").value) - (60 * 60 * 1000)*2);
+    let DATA_INIZIO = new Date(new Date(document.querySelector("#d_s").value) - (60 * 60 * 1000) * 2);
     let DATA_FINE = new Date(new Date(document.querySelector("#d_f").value) - (60 * 60 * 1000));
 
     saveListLCL.forEach(rowLCL => {
@@ -395,7 +408,7 @@ function calcBeneficit() {
                         } else if (DATA_INIZIO <= new Date(row["DataAnnullamento"]) && new Date(row["DataAnnullamento"]) <= DATA_FINE) {
                             LCL.ANN += 1;
                         }
-                    } else if ( (row["StatoAttivita"] == "CON" || row["StatoAttivita"] == "RESC") && (DATA_INIZIO <= new Date(row["DataInstallazione"]) && new Date(row["DataInstallazione"]) <= DATA_FINE)) {
+                    } else if ((row["StatoAttivita"] == "CON" || row["StatoAttivita"] == "RESC") && (DATA_INIZIO <= new Date(row["DataInstallazione"]) && new Date(row["DataInstallazione"]) <= DATA_FINE)) {
                         LCL.CON += 1;
 
                         //console.log(DATA_INIZIO);
@@ -493,8 +506,9 @@ function calcBeneficit() {
                         }
 
 
-                        const diffTime = Math.abs(new Date(row["DataInizioLCL"]) - new Date(row["DataInstallazione"]));
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                        const diffTime = Math.abs(new Date(row["DataInizioLCL"]) - new Date(row["DataInstallazione"])); //
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; //da trovare il calcolo giusto per i giorni
+
                         if (diffDays <= 30) {
                             LCL.GG1 += 1;
                         } else if (diffDays > 30 && diffDays <= 90) {
@@ -592,7 +606,7 @@ function calcBeneficit() {
 
 
                     if (totLCLs.Tot[DB_Key] == undefined) {
-                        totLCLs.Tot[DB_Key] = {CE: 0, Euro: 0};
+                        totLCLs.Tot[DB_Key] = { CE: 0, Euro: 0 };
                     }
                     totLCLs.Tot[DB_Key].CE += LCL[DB_Key];
                     totLCLs.Tot[DB_Key].Euro += tot;
